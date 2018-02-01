@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class PlayerPhotonNetworkManager : MonoBehaviour {
 	[SerializeField]MonoBehaviour[] localScript = null;
-	[SerializeField]Camera playerCamera;
-	[SerializeField]AudioListener playerAudioListener;
+	[SerializeField]Camera playerCamera= null;
+	[SerializeField]AudioListener playerAudioListener = null;
 	[SerializeField]GameObject Child;
 	// Use this for initialization
 	void Awake () {

@@ -39,6 +39,14 @@ public class GameManagerScript : MonoBehaviour {
 		if ((playerInRoom == playerInScene) && summon) {
 			summon = false;
 			PhotonNetwork.RPC (GetComponent<PhotonView> (), "SummonCharacter", PhotonTargets.All, false);
+
+
+			if (PhotonNetwork.isMasterClient) {
+				GetComponent<MazeGeneraorScript> ().StartCreateMaze ();
+			}
+
+
+
 		}
 		
 	}
