@@ -11,6 +11,12 @@ public class MazeGeneraorScript : MonoBehaviour {
 		GameObject _wallKanan;
 		GameObject _wallBlakang;
 		GameObject _wallKiri;
+
+		public Vector3 PositionCell {
+			get;
+			set;
+		}
+
 		public GameObject WallDepan{
 			get{ return _wallDepan;}
 			set{ _wallDepan = value; }
@@ -27,9 +33,12 @@ public class MazeGeneraorScript : MonoBehaviour {
 			get{ return _wallKiri;}
 			set{ _wallKiri = value; }
 		}
+		public static void DestroyWall(GameObject obj){
+
+			Destroy(obj);
+		}
 
 	}
-
 
 
 	public bool createOnStart {
@@ -43,16 +52,20 @@ public class MazeGeneraorScript : MonoBehaviour {
 	public float panjangWall;
 	public Vector3 startPos;
 	[Range(0.0001f , 1f)]
-	[SerializeField]float delayMakeLabyrith;
+	[SerializeField]float delayMakeLabyrith = 0;
 	GameObject MazeParent;
 
-
+	PhotonView pv;
 	WallCell[,] arrWalls;
 	GameObject tempWall;
-
+	int maze;
 
 	// Use this for initialization
-	void Awake () {
+	void Start () {
+		Debug.Log("Masuk");
+		maze = 0;
+		pv = GetComponent<PhotonView> ();
+
 		
 		arrWalls = new WallCell[sizeY, sizeX];
 		for (int i = 0; i < sizeX; i++) {
@@ -72,12 +85,16 @@ public class MazeGeneraorScript : MonoBehaviour {
 	}
 
 
+
 	//Membuat Maze
 	public void StartCreateMaze(){
 		MazeParent = new GameObject ();
 		MazeParent.name = "MazeEnvironment";
 		CreateBlankMaze ();
+		if (PhotonNetwork.isMasterClient==false)
+			return;
 
+		Debug.Log("Created");
 		StartCoroutine(CreateWalkThrough (0 , 0));
 		MazeParent.transform.SetParent (GameObject.Find ("Environment").transform);
 
@@ -87,13 +104,17 @@ public class MazeGeneraorScript : MonoBehaviour {
 	//Membuat maze awal
 	void CreateBlankMaze(){
 		Vector3 posAwal = startPos;
+		if (maze >= 1)
+			return;
 
+		maze += 1;
+		Debug.Log ("Membuat Blank Maze");
 
 		//Membuat Wall Kanan / Kiri
 		for (int i = 0; i <= sizeX; i++) {
 			for (int j = 0; j < sizeY; j++) {
 				
-				tempWall = (GameObject)Instantiate (wall , posAwal + new Vector3( j*panjangWall + panjangWall/2, 0 , i*panjangWall ) , Quaternion.identity);
+				tempWall = (GameObject)Instantiate (wall , posAwal + new Vector3( j*panjangWall + panjangWall/2, 0 , i*panjangWall ) , Quaternion.identity );
 				tempWall.name = "Wall " + j.ToString() + " , " + i.ToString () + " Hor";
 				if (i < sizeX && j < sizeY && tempWall != null) {
 					arrWalls [j, i].WallKiri = tempWall;
@@ -113,7 +134,7 @@ public class MazeGeneraorScript : MonoBehaviour {
 		for (int i = 0; i < sizeX; i++) {
 			for (int j = 0; j <= sizeY; j++) {
 
-				tempWall = (GameObject) Instantiate (wall , posAwal + new Vector3( j*panjangWall , 0 , i*panjangWall + panjangWall/2 ) , Quaternion.Euler(0 , 90 , 0));
+				tempWall = (GameObject)Instantiate (wall , posAwal + new Vector3( j*panjangWall , 0 , i*panjangWall + panjangWall/2 ) , Quaternion.Euler(0 , 90 , 0));
 				tempWall.name = "Wall " + j.ToString() + " , " + i.ToString ()+" Ver";
 				if (i < sizeX && j < sizeY && tempWall != null) {
 					arrWalls [j, i].WallDepan = tempWall;
@@ -128,6 +149,12 @@ public class MazeGeneraorScript : MonoBehaviour {
 			}
 		}
 
+		foreach (WallCell c in arrWalls) {
+			c.PositionCell = new Vector3 (c.WallDepan.transform.position.x - (c.WallDepan.transform.position.x - c.WallBlakang.transform.position.x)/2, 0 , c.WallDepan.transform.position.z );
+			//Debug.Log (c.PositionCell);
+			//Instantiate (wall, c.PositionCell, Quaternion.identity);
+		}
+
 
 	}
 
@@ -138,70 +165,169 @@ public class MazeGeneraorScript : MonoBehaviour {
 	/// <param name="kolom">Kolom saat ini</param>
 	IEnumerator CreateWalkThrough (int kolom = 0, int baris = 0){
 
-
-		string walkThrough = GetNextPath (kolom , baris);
-		List<Vector2> listStep = new List<Vector2> ();
-
-		while (walkThrough != "Clear") {
-			//Debug.Log (walkThrough);
-			arrWalls [kolom, baris].isVisited = true;
-			Vector2 nextStep = Vector2.zero;
-			listStep.Clear ();
-			string[] jalan = walkThrough.Split (',');
-
-
-			foreach (string isi in jalan) {
-				if (isi != " ") {
-					string[] xy = isi.Split ('.');
-					listStep.Add (new Vector2 (System.Convert.ToInt32( xy [0]), System.Convert.ToInt32( xy [1]) ));
-				}
-			}
-			int count = listStep.Count;
-
-			int random = Random.Range (0 , count);
-			//Debug.Log (random);
-
-			nextStep = listStep[random];
-			//Debug.Log (listStep.Count+"  "+random +"   " + nextStep);
-			if (nextStep.x != kolom) {
-				if (nextStep.x > kolom) {
-					Destroy(arrWalls[kolom , baris].WallBlakang);
-				} else {
-					Destroy(arrWalls[kolom , baris].WallDepan);
-				}
+		if (maze < 2) {
 			
-			} else if (nextStep.y != baris) {
-				if (nextStep.y > baris) {
-					Destroy(arrWalls[kolom , baris].WallKanan);
-				} else {
-					Destroy(arrWalls[kolom , baris].WallKiri);
+
+			string walkThrough = GetNextPath (kolom, baris);
+			List<Vector2> listStep = new List<Vector2> ();
+
+			while (walkThrough != "Clear") {
+				//Debug.Log (walkThrough);
+				arrWalls [kolom, baris].isVisited = true;
+				Vector2 nextStep = Vector2.zero;
+				listStep.Clear ();
+				string[] jalan = walkThrough.Split (',');
+
+
+				foreach (string isi in jalan) {
+					if (isi != " ") {
+						string[] xy = isi.Split ('.');
+						listStep.Add (new Vector2 (System.Convert.ToInt32 (xy [0]), System.Convert.ToInt32 (xy [1])));
+					}
 				}
+				int count = listStep.Count;
+
+				int random = Random.Range (0, count);
+				//Debug.Log (random);
+
+				nextStep = listStep [random];
+				//Debug.Log (listStep.Count+"  "+random +"   " + nextStep);
+				if (nextStep.x != kolom) {
+					if (nextStep.x > kolom) {
+						//Destroy(arrWalls[kolom , baris].WallBlakang);
+						//DestroyWallNumber(kolom, baris , 3);
+						pv.RPC ("DestroyWallNumber", PhotonTargets.All, kolom, baris, 3);
+					} else {
+						//Destroy(arrWalls[kolom , baris].WallDepan);
+						//DestroyWallNumber(kolom, baris , 1);
+						pv.RPC ("DestroyWallNumber", PhotonTargets.All, kolom, baris, 1);
+					}
 			
-			}
-
-			kolom = (int)nextStep.x;
-			baris = (int)nextStep.y;
-			arrWalls [kolom, baris].isVisited = true;
-
-
-
-			walkThrough = "";
-			walkThrough = GetNextPath (kolom , baris);
-			yield return new WaitForSeconds (delayMakeLabyrith);
-			Debug.Log (walkThrough);
-			if (walkThrough == "Clear") {
-				bool recreate = false;
-				RecheckMap (ref kolom, ref baris , ref recreate);
-				if (recreate) {
-					walkThrough = GetNextPath (kolom , baris);
-				} else {
-					break;
+				} else if (nextStep.y != baris) {
+					if (nextStep.y > baris) {
+						//Destroy(arrWalls[kolom , baris].WallKanan);
+						//DestroyWallNumber(kolom, baris , 2);
+						pv.RPC ("DestroyWallNumber", PhotonTargets.All, kolom, baris, 2);
+					} else {
+						//Destroy(arrWalls[kolom , baris].WallKiri);
+						//DestroyWallNumber(kolom, baris , 4);
+						pv.RPC ("DestroyWallNumber", PhotonTargets.All, kolom, baris, 4);
+					}
+			
 				}
-			}
 
+				kolom = (int)nextStep.x;
+				baris = (int)nextStep.y;
+				arrWalls [kolom, baris].isVisited = true;
+
+
+
+				walkThrough = "";
+				walkThrough = GetNextPath (kolom, baris);
+				yield return new WaitForSeconds (delayMakeLabyrith);
+				//Debug.Log (walkThrough);
+				if (walkThrough == "Clear") {
+					bool recreate = false;
+					RecheckMap (ref kolom, ref baris, ref recreate);
+					if (recreate) {
+						walkThrough = GetNextPath (kolom, baris);
+					} else {
+						break;
+					}
+				}
+
+			}
 		}
 
 	
+	}
+	public void DestroyRandom(int i){
+		if (i <= 0)
+			return;
+
+
+		int kolom = Random.Range (0, sizeY);
+		int baris = Random.Range (0, sizeX);
+		bool isDestroying = false;
+		string[] result = CekWallExist (kolom, baris);
+		if (result [0]=="1") {
+			pv.RPC ("DestroyWallNumber", PhotonTargets.All, kolom, baris, 1);
+			isDestroying = true;
+		}
+		if (result [1]=="1") {
+			pv.RPC ("DestroyWallNumber", PhotonTargets.All, kolom, baris, 2);
+			isDestroying = true;
+		}
+		if (result [2]=="1") {
+			pv.RPC ("DestroyWallNumber", PhotonTargets.All, kolom, baris, 3);
+			isDestroying = true;
+		}
+		if (result [3]=="1") {
+			pv.RPC ("DestroyWallNumber", PhotonTargets.All, kolom, baris, 4);
+			isDestroying = true;
+		}
+
+		if (isDestroying == false) {
+			DestroyRandom (i-1);
+		}
+
+	}
+
+	string[] CekWallExist(int kolom , int baris){
+		string[] hasil = new string[4];
+		
+		if (arrWalls [kolom, baris].WallDepan != null && (kolom != 0))
+			hasil [0] = "1";
+		else
+			hasil [0] = "0";
+
+		if (arrWalls [kolom, baris].WallKanan != null && (baris != sizeX-1))
+			hasil [1] = "1";
+		else
+			hasil [1] = "0";
+
+		if (arrWalls [kolom, baris].WallBlakang != null &&(kolom != sizeY-1))
+			hasil [2] = "1";
+		else
+			hasil [2] = "0";
+
+		if (arrWalls [kolom, baris].WallKiri != null && (baris != 0))
+			hasil [3] = "1";
+		else
+			hasil [3] = "0";
+
+		return hasil;
+	}
+
+
+	[PunRPC]
+	void DestroyWallNumber(int kolom , int baris , int pos){
+		//Debug.Log (kolom + "  " + baris + "  " + pos);
+		switch (pos) {
+
+		case 1:
+			WallCell.DestroyWall(arrWalls[kolom , baris].WallDepan);
+			//Destroy(arrWalls[kolom , baris].WallDepan);
+			//Debug.Log (arrWalls [kolom, baris].WallDepan.name);
+			break;
+		case 2:
+			//Debug.Log (arrWalls[kolom , baris].WallKanan.gameObject.name);
+			WallCell.DestroyWall(arrWalls[kolom , baris].WallKanan);
+			//Destroy(arrWalls[kolom , baris].WallKanan);
+			break;
+		case 3:
+			//Debug.Log (arrWalls[kolom , baris].WallBlakang.gameObject.name);
+			WallCell.DestroyWall(arrWalls[kolom , baris].WallBlakang);
+			//Destroy(arrWalls[kolom , baris].WallBlakang);
+			break;
+		case 4:
+			//Debug.Log (arrWalls[kolom , baris].WallKiri.gameObject.name);
+			WallCell.DestroyWall(arrWalls[kolom , baris].WallKiri);
+			//Destroy(arrWalls[kolom , baris].WallKiri);
+			break;
+
+		}
+
 	}
 
 	void RecheckMap (ref int kolom, ref int baris , ref bool recreate){

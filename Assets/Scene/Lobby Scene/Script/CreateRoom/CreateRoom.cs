@@ -10,19 +10,20 @@ public class CreateRoom : MonoBehaviour {
 	}
 
 	[SerializeField]Dropdown createOrJoin = null;
-	[SerializeField]InputField playerName = null;
+	[SerializeField]Text playerName = null;
 	[SerializeField]RoomLayoutGroup listRoom = null;
 
 	public void OnClick_CreateRoomOrJoinRoom(){
 
-		if (playerName.text != "") {
-			PhotonNetwork.playerName = playerName.text;
-		
-		} else {
-			Debug.Log ("Nama Kosong");
+//		if (playerName.text != "") {
+//			PhotonNetwork.playerName = playerName.text;
+//			PlayerNetwork.instance.PlayerName = playerName.text;
+//		
+//		} else {
+//			Debug.Log ("Nama Kosong");
 			Debug.Log ("Menngunakan Nama Default : "+PhotonNetwork.player.NickName);
-
-		}
+//
+//		}
 		int index = -1;
 		switch (createOrJoin.value) {
 		//Jika Opsi Saat Ini Adalah Membuat Room
@@ -71,5 +72,13 @@ public class CreateRoom : MonoBehaviour {
 		Debug.Log ("Success to Create Room");
 	}
 
+	public void LogOut(){
+		FirebaseHandlerScriptManager.LogOut ();
+		UnityEngine.SceneManagement.SceneManager.LoadScene (0);
+	}
+
+	void Awake(){
+		playerName.text = PlayerPrefs.GetString ("NickName");
+	}
 
 }

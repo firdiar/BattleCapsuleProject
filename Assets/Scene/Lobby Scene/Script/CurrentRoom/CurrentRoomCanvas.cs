@@ -13,10 +13,10 @@ public class CurrentRoomCanvas : MonoBehaviour {
 	[SerializeField]PlayerLayoutGroup PLG = null;
 
 	public void On_ClickOpenGame(){
-		if ((PhotonNetwork.isMasterClient)&&(PLG.isAllReady)) {
+		if ((PhotonNetwork.isMasterClient)&&(PLG.isAllReady)&&(PLG.PlayerCount >= 1)) {
 			PhotonNetwork.room.IsOpen = false;
 			PhotonNetwork.room.IsVisible = false;
-			PhotonNetwork.LoadLevel (1);
+			PhotonNetwork.LoadLevel (2);
 		}
 	}
 

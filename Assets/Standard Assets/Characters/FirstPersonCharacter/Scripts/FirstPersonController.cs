@@ -61,6 +61,7 @@ namespace UnityStandardAssets.Characters.FirstPerson
         // Update is called once per frame
         private void Update()
         {
+			
             RotateView();
             // the jump state needs to read here to make sure it is not missed
             if (!m_Jump)
@@ -233,10 +234,118 @@ namespace UnityStandardAssets.Characters.FirstPerson
             }
         }
 
+		float last;
+		int doubleLast;
+		int tripleLast;
+		float lastYRot;
+		int tripleLastYRot;
+		bool canLookX;
+		bool canLookY;
+		float i;
 
         private void RotateView()
         {
-            m_MouseLook.LookRotation (transform, m_Camera.transform);
+			canLookX = false;
+			canLookY = false;
+			if (!Input.compass.enabled)
+				Input.compass.enabled = true;
+
+			float xRotation = Input.compass.magneticHeading;
+			//xRotation = Mathf.Floor (xRotation);
+
+			last = transform.localRotation.y;
+
+			if (Mathf.Abs(last - xRotation) > 12) {
+					canLookX = true;
+					tripleLast = 0;
+					doubleLast = 0;
+
+			} else if (last - xRotation > 7) {
+					
+					
+					if (doubleLast == 1 && tripleLast != 0) {
+						canLookX = true;
+						doubleLast = 0;
+					} else if (tripleLast == 0) {
+						tripleLast = doubleLast;
+						doubleLast = 1;
+					} else {
+						tripleLast = 0;
+						doubleLast = 0;
+					}
+				    
+
+			} else if (xRotation - last > 7) {
+
+
+				if (doubleLast ==3 && tripleLast != 0) {
+					canLookX = true;
+					doubleLast = 0;
+				} else if (tripleLast == 0) {
+					tripleLast = doubleLast;
+					doubleLast = 3;
+				} else {
+					tripleLast = 0;
+					doubleLast = 0;
+				}
+
+
+			}else {
+					tripleLast = 0;
+					doubleLast = 0;
+			}
+			
+		
+
+
+
+			Vector3 acc = Input.acceleration;
+			float yRotation = acc.z + 0.15f;
+			lastYRot = m_Camera.transform.localPosition.x / 70;
+
+
+			yRotation *= 100;
+			yRotation = Mathf.Floor (yRotation);
+			yRotation = yRotation / 100;
+			
+			if (Mathf.Abs (yRotation - lastYRot) > 0.11) {
+				canLookY = true;
+				tripleLastYRot = 0;
+			} else if ((yRotation - lastYRot) > 0.06) {
+				if (tripleLastYRot == 1) {
+					canLookY = true;
+				}
+				tripleLastYRot = 1;
+
+			} else if ((lastYRot - yRotation) > 0.06) {
+				if (tripleLastYRot == 3) {
+					canLookY = true;
+				}
+				tripleLastYRot = 3;
+
+			} else {
+				tripleLastYRot = 0;
+			}
+
+
+
+			if (canLookX && canLookY) {
+				m_MouseLook.LookRotation (transform, m_Camera.transform, xRotation, yRotation*70 , (tripleLast%2)*5 , (tripleLastYRot%2)*5);
+				tripleLastYRot = 0;
+				tripleLast = 0;
+				//last = xRotation;
+				//lastYRot = yRotation;
+			} else if (canLookX) {
+				m_MouseLook.LookRotation (transform, m_Camera.transform, xRotation, yRotation*70 , (tripleLast%2)*5 , (tripleLastYRot%2)*5);
+				tripleLastYRot = 0;
+				//last = xRotation;
+			} else if (canLookY) {
+				m_MouseLook.LookRotation (transform, m_Camera.transform, last , yRotation*70 , (tripleLast%2)*5 , (tripleLastYRot%2)*5);
+				tripleLast = 0;
+				//lastYRot = yRotation;
+			}
+
+		
         }
 
 

@@ -8,15 +8,33 @@ public class LobbyNetwork : MonoBehaviour {
 	public string GAME_VERSION = "0.0.1";
 	[SerializeField]Text[] status = null;
 	[SerializeField]Button connectButton = null;
+	[SerializeField]GameObject Panel = null;
+	[SerializeField]GameObject PanelExit = null;
 
 	// Use this for initialization
-	void Start () {
-		Debug.Log ("Connecting To Server..");
-		PhotonNetwork.ConnectUsingSettings (GAME_VERSION);
+	void Awake() {
+		if (!PhotonNetwork.connected) {
+			Debug.Log ("Connecting To Server..");
+			PhotonNetwork.ConnectUsingSettings (GAME_VERSION);
+		}
 	}
 	void FixedUpdate(){
 		foreach (Text c in status) {
 			c.text = PhotonNetwork.connectionStateDetailed.ToString ();
+			if (c.text == "PeerCreated") {
+				Debug.Log ("Disconnected");
+				connectButton.interactable = false;
+				Panel.SetActive (true);
+			}
+			if (c.text == "JoinedLobby") {
+				connectButton.interactable = true;
+			}
+		}
+	}
+
+	void Update(){
+		if(Input.GetKeyDown(KeyCode.Escape)){
+			PanelExit.SetActive(true);
 		}
 	}
 	
@@ -36,6 +54,19 @@ public class LobbyNetwork : MonoBehaviour {
 		connectButton.interactable = true;
 		Debug.Log ("Joined Lobby..");
 	}
+
+	public void ReConnect(){
+		UnityEngine.SceneManagement.SceneManager.LoadScene (UnityEngine.SceneManagement.SceneManager.GetActiveScene ().name);
+	}
+
+	public void Exit(){
+		Application.Quit ();
+	}
+
+	public void NonActive(GameObject c){
+		c.SetActive (false);
+	}
+
 
 
 }

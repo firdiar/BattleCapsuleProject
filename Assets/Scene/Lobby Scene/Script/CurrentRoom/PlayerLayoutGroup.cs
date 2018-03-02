@@ -28,6 +28,13 @@ public class PlayerLayoutGroup : MonoBehaviour {
 		}
 	}
 
+	public int PlayerCount{
+		get{ 
+			return PlayerListings.Count;
+		}
+
+	}
+
 	//called when you join a room
 	void OnJoinedRoom(){
 
@@ -55,7 +62,8 @@ public class PlayerLayoutGroup : MonoBehaviour {
 		}
 		PlayerListings.Clear ();
 		PhotonNetwork.player.isReady = false;
-		playerStatus.GetComponent<PlayerStatus> ().SetToWaiting ();
+		if(playerStatus != null)
+			playerStatus.transform.parent.GetComponent<PlayerStatus> ().SetToWaiting ();
 
 	}
 

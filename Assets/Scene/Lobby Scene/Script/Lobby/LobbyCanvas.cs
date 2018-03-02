@@ -19,4 +19,10 @@ public class LobbyCanvas : MonoBehaviour {
 		inputRoomName.text = roomName;
 
 	}
+	void Start(){
+		Input.compass.enabled = true;
+	}
+	void Update(){
+		float a = Input.compass.magneticHeading;
+	}
 }

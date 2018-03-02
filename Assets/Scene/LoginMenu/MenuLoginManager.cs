@@ -26,6 +26,16 @@ public class MenuLoginManager : MonoBehaviour {
 	[Header("Loby Scene")]
 	[SerializeField] string LobyScene = "";
 
+	public delegate void ContinueTo();
+	public static event ContinueTo gotoLoby;
+
+	void OnEnable(){
+		gotoLoby += GotoLoby;
+	}
+	void OnDisable(){
+		gotoLoby -= GotoLoby;
+	}
+
 
 	public void OnClickLogin_Btn(UnityEngine.UI.Button btn){
 		//btn.interactable = false;
@@ -38,8 +48,9 @@ public class MenuLoginManager : MonoBehaviour {
 		} 
 		SetActiveLoadingScene (true);
 		//string result = "";
-		FirebaseHandlerScriptManager.Sign (emailTxtL.text, passwordTxtL.text , errorTxtL , loadingScene);
-		GotoLoby ();
+
+		FirebaseHandlerScriptManager.Sign (emailTxtL.text, passwordTxtL.text, errorTxtL, loadingScene , gotoLoby);
+
 	}
 
 	public void OnClickRegister_Btn(){
@@ -72,9 +83,9 @@ public class MenuLoginManager : MonoBehaviour {
 			return;
 		}
 		SetActiveLoadingScene (true);
-		FirebaseHandlerScriptManager.RegisterNewAccount (emailTxtR.text, passwordTxtR.text, nickNameTxtR.text , errorTxtR ,loadingScene);
+		FirebaseHandlerScriptManager.RegisterNewAccount (emailTxtR.text, passwordTxtR.text, nickNameTxtR.text , errorTxtR ,loadingScene , gotoLoby);
 		//FirebaseHandlerScriptManager.SendEmailVerification (errorTxtR);
-		GotoLoby();
+
 	}
 
 	public void ChangeLoginPage(bool page){
@@ -87,7 +98,9 @@ public class MenuLoginManager : MonoBehaviour {
 
 	void Start(){
 		if (FirebaseHandlerScriptManager.auth.CurrentUser != null) {
+			Input.compass.enabled = true;
 			GotoLoby ();
+
 		}
 
 	}

@@ -2,14 +2,18 @@
 
 public class PlayerNetwork : MonoBehaviour {
 
-	public static PlayerNetwork instance;
+	public static PlayerNetwork instance = null;
 	public string PlayerName{ get; private set;}
 
 	// Use this for initialization
 	void Awake () {
-		instance = this;
+		if (PlayerNetwork.instance == null) {
+			instance = this;
 
-		PlayerName = "Player" + Random.Range (0, 999).ToString();
+			PlayerName = PlayerPrefs.GetString ("NickName");
+		} else {
+			transform.parent.GetComponent<DDOL> ().Destroy ();
+		}
 	}
 
 }
