@@ -99,6 +99,7 @@ public class PlayerActiveController : MonoBehaviour , IStatus {
 
 	// Use this for initialization
 	void Awake() {
+		GameObject.Find ("GameSelfManager").GetComponent<GameManagerScript> ().AddPlayer (gameObject);
 		mapCameraRenderer = GameObject.Find ("CameraMapRenderer");
 		MyColor = transform.GetChild(1).GetComponent<Renderer> ().material.color;
 		HPBar = GameObject.Find ("Canvas").transform.GetChild (5).GetChild (0).GetComponent<RectTransform> ();
@@ -198,7 +199,7 @@ public class PlayerActiveController : MonoBehaviour , IStatus {
 			return hit.point;
 		}
 
-		return transform.GetChild(0).transform.forward * 100;
+		return far;
 	}
 
 	[PunRPC]
@@ -241,6 +242,9 @@ public class PlayerActiveController : MonoBehaviour , IStatus {
 
 				}
 				CreateMap (3);
+				GameObject cam = GameObject.Find ("CameraMapRenderer");
+				cam.transform.parent = this.transform;
+				cam.transform.localPosition = new Vector3 (0, 10, 0);
 			}
 
 		}

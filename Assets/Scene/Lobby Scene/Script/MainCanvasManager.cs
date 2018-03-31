@@ -15,9 +15,12 @@ public class MainCanvasManager : MonoBehaviour {
 	public CurrentRoomCanvas CurrentRoomCanvas{
 		get{return _currentRoomCanvas; }
 	}
+	public GameObject[] Bg;
 
 	void Awake(){
 		Instance = this;
 	
 	}
+
+
 }

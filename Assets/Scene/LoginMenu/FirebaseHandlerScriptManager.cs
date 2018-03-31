@@ -280,7 +280,7 @@ public class FirebaseHandlerScriptManager : MonoBehaviour {
 		if (auth.CurrentUser == null)
 			return;
 		
-		rootRefereceDatabase.Child ("users").Child (auth.CurrentUser.UserId).Child ("Diamond").SetValueAsync (Diamond);
+		rootRefereceDatabase.Child ("users").Child (auth.CurrentUser.UserId).Child ("diamond").SetValueAsync (Diamond);
 
 	}
 	public static void GetCoin(UnityEngine.UI.Text GoldText){
@@ -304,6 +304,20 @@ public class FirebaseHandlerScriptManager : MonoBehaviour {
 
 		});
 	}
+
+	public static DatabaseReference GetGoldDatabaseRef{
+		get{
+			return rootRefereceDatabase.Child ("users").Child (auth.CurrentUser.UserId).Child ("gold");
+		}
+	}
+
+	public static DatabaseReference GetDiamondDatabaseRef{
+		get{
+			return rootRefereceDatabase.Child ("users").Child (auth.CurrentUser.UserId).Child ("diamond");
+		}
+	}
+
+
 
 	public static void SetCoin(string Gold){
 

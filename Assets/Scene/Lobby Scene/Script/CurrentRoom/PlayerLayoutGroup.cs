@@ -42,7 +42,7 @@ public class PlayerLayoutGroup : MonoBehaviour {
 			Destroy (c);
 		}
 
-		MainCanvasManager.Instance.CurrentRoomCanvas.transform.SetAsLastSibling ();
+		//MainCanvasManager.Instance.CurrentRoomCanvas.transform.SetAsLastSibling ();
 
 		PhotonPlayer[] photonPlayers = PhotonNetwork.playerList;
 		foreach (PhotonPlayer player in photonPlayers) {
@@ -55,7 +55,7 @@ public class PlayerLayoutGroup : MonoBehaviour {
 
 	void OnLeftRoom(){
 		
-		MainCanvasManager.Instance.LobbyCanvas.transform.SetAsLastSibling ();
+		//MainCanvasManager.Instance.LobbyCanvas.transform.SetAsLastSibling ();
 	
 		foreach (Transform c in transform) {
 			Destroy (c.gameObject);

@@ -21,6 +21,11 @@ public class CurrentRoomCanvas : MonoBehaviour {
 	}
 
 	public void On_ClickOutRoom(){
+		MainCanvasManager.Instance.LobbyCanvas.gameObject.SetActive (true);
+		MainCanvasManager.Instance.CurrentRoomCanvas.gameObject.SetActive (false);
+		foreach (GameObject c in MainCanvasManager.Instance.Bg) {
+			c.SetActive (true);
+		}
 		PhotonNetwork.LeaveRoom (true);
 	
 	}

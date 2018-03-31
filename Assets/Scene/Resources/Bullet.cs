@@ -21,6 +21,11 @@ public class Bullet : MonoBehaviour {
 	void Update () {
 		transform.position = Vector3.MoveTowards (transform.position, target, Speed * Time.deltaTime);
 		transform.LookAt (target);
+
+		if (Vector3.Distance (transform.position, target) < 0.5f) {
+			Vector3 moveAdd = target - transform.position;
+			target = target + (moveAdd*100);
+		}
 	}
 
 	void OnCollisionEnter(Collision col){

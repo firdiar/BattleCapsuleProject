@@ -62,6 +62,7 @@ public class GameManagerScript : MonoBehaviour {
 	void SummonCharacter(){
 		GameObject spawnpos = spawnPlayerPos [Random.Range (0, spawnPlayerPos.Length - 1)];
 		GameObject character = PhotonNetwork.Instantiate ("Player", spawnpos.transform.position, Quaternion.identity, 0);
+
 		character.GetComponent<PlayerActiveController> ().spawnPos = spawnpos;
 		summon = false;
 		InvokeRepeating ("CheckPlayerLeft", 30 , 4);
@@ -69,6 +70,11 @@ public class GameManagerScript : MonoBehaviour {
 		message.SetActive (true);	
 		Debug.Log ("Karakter terbuat");
 	}
+
+	public void AddPlayer(GameObject obj){
+		allPlayer.Add (obj);
+	}
+
 	
 	// Update is called once per frame
 	void Update () {
@@ -94,10 +100,7 @@ public class GameManagerScript : MonoBehaviour {
 				timB.ActiveCollider ();
 				colliderActive = true;
 				messege_Text.text = "Game Dimulai!!\nWall akan hancur setiap 25 detik";
-				GameObject[] tempAllPlayer = GameObject.FindGameObjectsWithTag ("Player");
-				for (int i = 0; i < tempAllPlayer.Length; i++) {
-					allPlayer.Add (tempAllPlayer [i]);
-				}
+
 
 				StartCoroutine(SetActive(message , false , 3));
 			}
