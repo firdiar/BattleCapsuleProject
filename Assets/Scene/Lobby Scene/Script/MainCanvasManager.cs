@@ -6,6 +6,7 @@ public class MainCanvasManager : MonoBehaviour {
 
 	public static MainCanvasManager Instance = null;
 
+	public GameObject loadingPrefabs = null;
 	[SerializeField]LobbyCanvas _lobbyCanvas = null;
 	public LobbyCanvas LobbyCanvas{
 		get{return _lobbyCanvas; }
@@ -18,7 +19,9 @@ public class MainCanvasManager : MonoBehaviour {
 	public GameObject[] Bg;
 
 	void Awake(){
+		
 		Instance = this;
+		loadingPrefabs.SetActive (true);
 	
 	}
 

@@ -15,7 +15,7 @@ public class LobbyCanvas : MonoBehaviour {
 	[SerializeField]Dropdown createOrJoin = null;
 	[SerializeField]InputField gold = null;
 	[SerializeField]InputField diamond = null;
-	[SerializeField]GameObject shop = null;
+
 
 	public void OnClickJoinRoom(string roomName){
 		
@@ -24,11 +24,20 @@ public class LobbyCanvas : MonoBehaviour {
 
 	}
 
-	public void OnClickShop(){
-		if (shop.activeInHierarchy) {
-			shop.SetActive (false);
+	public int GetGold(){
+		return System.Convert.ToInt32 (gold.text);
+
+	}
+
+	public int GetDiamond(){
+		return System.Convert.ToInt32 (diamond.text);
+	}
+
+	public void OnClickShop(GameObject c){
+		if (c.activeInHierarchy) {
+			c.SetActive (false);
 		} else {
-			shop.SetActive (true);
+			c.SetActive (true);
 		}
 	}
 

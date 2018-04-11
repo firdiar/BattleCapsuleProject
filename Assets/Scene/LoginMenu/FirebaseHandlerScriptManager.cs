@@ -15,7 +15,7 @@ public class FirebaseHandlerScriptManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Awake () {
-		
+
 		if (FirebaseHandlerScriptManager.instance == null) {
 			auth = FirebaseAuth.DefaultInstance;
 
@@ -32,9 +32,9 @@ public class FirebaseHandlerScriptManager : MonoBehaviour {
 		} else {
 			Destroy (gameObject);
 		}
-		
+
 	}
-		
+
 
 	public static void RegisterNewAccount(string email , string password , string displayName ,UnityEngine.UI.Text errorText ,GameObject loading , MenuLoginManager.ContinueTo next ){
 		auth.CreateUserWithEmailAndPasswordAsync(email, password).ContinueWith(task => {
@@ -95,12 +95,12 @@ public class FirebaseHandlerScriptManager : MonoBehaviour {
 
 
 		});
-		
+
 	}
 
 
 	public static void Sign(string email , string password  , UnityEngine.UI.Text errorText , GameObject Loading , MenuLoginManager.ContinueTo next ){
-		
+
 		Firebase.Auth.Credential credential = Firebase.Auth.EmailAuthProvider.GetCredential(email, password);
 
 		auth.SignInWithCredentialAsync(credential).ContinueWith(task => {
@@ -214,7 +214,7 @@ public class FirebaseHandlerScriptManager : MonoBehaviour {
 				Debug.Log("User email updated successfully.");
 			});
 		}
-		
+
 	}
 
 	public static void SendEmailResetVerification(string targetEmail){
@@ -260,7 +260,7 @@ public class FirebaseHandlerScriptManager : MonoBehaviour {
 		if (auth.CurrentUser == null)
 			return;
 
-		rootRefereceDatabase.Child ("users").Child (auth.CurrentUser.UserId).Child ("diamond").GetValueAsync ().ContinueWith (task => {
+		GetDiamondDatabaseRef.GetValueAsync ().ContinueWith (task => {
 			if(task.IsCanceled){
 				DiamondText.text = "0";
 			}
@@ -273,13 +273,13 @@ public class FirebaseHandlerScriptManager : MonoBehaviour {
 				DiamondText.text = task.Result.Value.ToString();
 			}
 
-		
+
 		});
 	}
 	public static void SetDiamond(string Diamond){
 		if (auth.CurrentUser == null)
 			return;
-		
+
 		rootRefereceDatabase.Child ("users").Child (auth.CurrentUser.UserId).Child ("diamond").SetValueAsync (Diamond);
 
 	}
@@ -327,35 +327,61 @@ public class FirebaseHandlerScriptManager : MonoBehaviour {
 		rootRefereceDatabase.Child ("users").Child (auth.CurrentUser.UserId).Child ("gold").SetValueAsync (Gold);
 	}
 
-	public static void RendeemDiamond(UnityEngine.UI.Text jml ,  string key){
-		bool isFind = false;
-		if (auth.CurrentUser != null) {
+	public static void RendeemDiamond(string key , GameObject loading , int currentDiamond){
+		string diamond = "0";
+		loading.SetActive (true);
 
-	
+		if (auth.CurrentUser != null) {
 			FirebaseDatabase.DefaultInstance
 			.GetReference ("rendeem")
 			.GetValueAsync ().ContinueWith (task => {
 
 				if (task.IsCompleted) {
 					DataSnapshot snapshot = task.Result;
-					
+
 					foreach (DataSnapshot ds in snapshot.Children) {
 						if (ds.Key.ToString () == key) {
-							jml.text = ds.Value.ToString ();
-							isFind = true;
+							diamond = ds.Value.ToString ();
+							SetDiamond((currentDiamond+System.Convert.ToInt32(diamond)).ToString());
+							Remove(key);
+
 							break;
 						}
 
 					}
 				}
 			});
-		} 
-
-		if (!isFind) {
-			jml.text = "Maaf Anda Salah Memasukan Code";
 		}
-		
-	}
+			
 	
+
+	}
+
+	public static void Remove(string c){
+
+		#if UNITY_EDITOR
+			return;
+		#else
+
+
+		if (auth.CurrentUser == null)
+			return;
+
+
+		FirebaseDatabase.DefaultInstance.GetReference ("rendeem").Child (c).SetValueAsync(null).ContinueWith(task => {
+
+			if (task.IsCompleted) {
+				
+			}
+			if(task.IsFaulted || task.IsCanceled){
+				
+			}
+
+
+		});
+		#endif
+
+	}
+
 
 }

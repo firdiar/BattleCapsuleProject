@@ -22,7 +22,10 @@ public class CreateRoom : MonoBehaviour {
 //		
 //		} else {
 //			Debug.Log ("Nama Kosong");
-			Debug.Log ("Menngunakan Nama Default : "+PhotonNetwork.player.NickName);
+		if (PhotonNetwork.connectionStateDetailed.ToString () != "JoinedLobby")
+			return;
+		
+		Debug.Log ("Menngunakan Nama Default : "+PhotonNetwork.player.NickName);
 //
 //		}
 		int index = -1;

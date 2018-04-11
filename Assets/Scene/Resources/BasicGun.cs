@@ -30,6 +30,10 @@ public class BasicGun : MonoBehaviour , IDamageGiver {
 
 	}
 	void Awake(){
+
+		if (UnityEngine.SceneManagement.SceneManager.GetActiveScene ().name != "GameWaiting")
+			return;
+
 		iniMiliku = false;
 		StartCoroutine (initialize ());
 		BtnShoot ();

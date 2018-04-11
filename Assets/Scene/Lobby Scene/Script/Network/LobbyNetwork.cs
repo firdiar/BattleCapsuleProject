@@ -10,11 +10,13 @@ public class LobbyNetwork : MonoBehaviour {
 	[SerializeField]Button connectButton = null;
 	[SerializeField]GameObject Panel = null;
 	[SerializeField]GameObject PanelExit = null;
+	[SerializeField]Text ss;
 
 	// Use this for initialization
 	void Awake() {
 		if (!PhotonNetwork.connected) {
 			Debug.Log ("Connecting To Server..");
+
 			PhotonNetwork.ConnectUsingSettings (GAME_VERSION);
 		}
 	}
@@ -25,9 +27,12 @@ public class LobbyNetwork : MonoBehaviour {
 				Debug.Log ("Disconnected");
 				connectButton.interactable = false;
 				Panel.SetActive (true);
+				MainCanvasManager.Instance.loadingPrefabs.SetActive (false);
 			}
 			if (c.text == "JoinedLobby") {
+				
 				connectButton.interactable = true;
+				MainCanvasManager.Instance.loadingPrefabs.SetActive (false);
 			}
 		}
 	}
@@ -51,6 +56,7 @@ public class LobbyNetwork : MonoBehaviour {
 	}
 
 	void OnJoinedLobby(){
+
 		connectButton.interactable = true;
 		Debug.Log ("Joined Lobby..");
 	}

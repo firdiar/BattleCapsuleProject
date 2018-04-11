@@ -32,6 +32,9 @@ public class ChatListingLayoutGroup : MonoBehaviour {
 
 		GameObject temp = Instantiate (ChatInstantiate);
 		temp.transform.SetParent (this.transform);
+		temp.transform.localScale = Vector3.one;
+		temp.transform.localPosition = new Vector3(temp.transform.localPosition.x , temp.transform.localPosition.y , 0);
+		temp.transform.localRotation = Quaternion.identity;
 
 		ChatListing cl = temp.GetComponent<ChatListing>();
 		cl.FlowUpChat(isi , sender);
